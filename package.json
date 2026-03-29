@@ -8,7 +8,11 @@
     "cypress:run": "cypress run",
     "test:e2e": "cypress run --spec 'cypress/e2e/**/*.feature'",
     "test:api": "cypress run --spec 'cypress/api/**/*.feature'",
-    "test": "cypress run"
+    "test": "cypress run",
+    "test:smoke": "cypress run --env TAGS=@smoke",
+    "test:regression": "cypress run --env TAGS=@regression",
+    "test:smoke:e2e": "cypress run --env TAGS=@smoke --spec 'cypress/e2e/**/*.feature'",
+    "test:smoke:api": "cypress run --env TAGS=@smoke --spec 'cypress/api/**/*.feature'"
   },
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^21.0.0",
@@ -18,6 +22,8 @@
   "cypress-cucumber-preprocessor": {
     "stepDefinitions": [
       "cypress/support/step_definitions/**/*.js"
-    ]
+    ],
+    "filterSpecs": true,
+    "omitFiltered": true
   }
 }

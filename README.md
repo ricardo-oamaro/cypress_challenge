@@ -115,6 +115,27 @@ npx cypress run
 npx cypress open
 ```
 
+## Tags (smoke e regressão)
+
+Os cenários nos `.feature` usam tags Cucumber para separar **sanidade** da **suíte completa**:
+
+| Tag | Uso |
+|-----|-----|
+| **`@smoke`** | Fluxos rápidos e críticos (login na tela, cadastro, login → home, contratos API principais). |
+| **`@regression`** | Todos os cenários da suíte; cenários só de regressão têm **apenas** `@regression`. Cenários smoke usam **`@smoke @regression`**. |
+
+Configuração no `package.json` (`cypress-cucumber-preprocessor`): `filterSpecs` e `omitFiltered` ativos. O filtro usa a variável de ambiente **`TAGS`** (ex.: sintaxe Cucumber `@smoke`, `@regression`, `@smoke and not @wip`).
+
+| Comando | O que executa |
+|---------|----------------|
+| `npm test` | **Todos** os cenários (sem `TAGS` — não aplica filtro por tag). |
+| `npm run test:smoke` | Só cenários com `@smoke` (E2E + API). |
+| `npm run test:regression` | Cenários com `@regression` (suíte completa com tags). |
+| `npm run test:smoke:e2e` | Smoke só no frontend. |
+| `npm run test:smoke:api` | Smoke só na API. |
+
+Exemplo manual: `npx cypress run --env TAGS='@smoke'`.
+
 ## CI (GitHub Actions)
 
 The workflow [`.github/workflows/cypress.yml`](.github/workflows/cypress.yml) runs on **push** and **pull_request** to `main` or `master`, and can be started manually (**Actions → Cypress → Run workflow**).
