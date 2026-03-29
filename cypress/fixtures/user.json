@@ -1,5 +1,4 @@
 {
-  "password": "Senha@123",
   "administrator": "false",
   "names": {
     "signUpUi": "Cypress User",

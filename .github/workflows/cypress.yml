@@ -16,6 +16,8 @@ jobs:
     name: E2E (frontend)
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      CYPRESS_testPassword: ${{ secrets.CYPRESS_TEST_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -48,6 +50,8 @@ jobs:
     name: API
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      CYPRESS_testPassword: ${{ secrets.CYPRESS_TEST_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

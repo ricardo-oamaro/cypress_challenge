@@ -7,7 +7,9 @@ module.exports = defineConfig({
   e2e: {
     baseUrl: 'https://front.serverest.dev',
     env: {
-      apiUrl: 'https://serverest.dev',
+      apiUrl: process.env.CYPRESS_apiUrl || 'https://serverest.dev',
+      testPassword: process.env.CYPRESS_testPassword,
+      ci: process.env.CI === 'true',
     },
     specPattern: ['cypress/e2e/**/*.feature', 'cypress/api/**/*.feature'],
     supportFile: 'cypress/support/e2e.js',

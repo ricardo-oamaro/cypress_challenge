@@ -3,7 +3,10 @@
  * Usage: cy.registerUserApi({ ... }), cy.loginApi(email, password), etc.
  *
  * ServeRest API expects Portuguese JSON keys (nome, administrador); JS uses English override names.
+ * Passwords come from Cypress env / CYPRESS_testPassword, not from fixtures (see envPassword.js).
  */
+
+const { getTestPassword } = require('./envPassword');
 
 Cypress.Commands.add('registerUserApi', (overrides = {}) => {
   return cy.fixture('user').then((userFixture) => {
@@ -11,7 +14,7 @@ Cypress.Commands.add('registerUserApi', (overrides = {}) => {
     const body = {
       nome: overrides.name ?? userFixture.names.e2eUser,
       email,
-      password: overrides.password ?? userFixture.password,
+      password: getTestPassword(overrides.password),
       administrador:
         overrides.administrator ?? userFixture.administrator,
     };

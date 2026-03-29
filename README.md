@@ -16,8 +16,8 @@ End-to-end (**frontend**) and **API** automation against the public **ServeRest*
 | **Step definitions** | Implement steps; call Page Objects, `cy.request`, or custom commands. |
 | **Page Objects** (`cypress/support/pages/`) | Encapsulate selectors and UI actions (`LoginPage`, `UserRegistrationPage`, `ClientHomePage`, `AdminHomePage`). |
 | **Commands** (`cypress/support/commands.js`) | Reuse: `cy.registerUserApi()`, `cy.loginApi()`. |
-| **Fixtures** (`cypress/fixtures/`) | Shared data (e.g. `user.json`); unique emails are generated in tests when needed. |
-| **Config** | `cypress.config.js`: frontend `baseUrl`, `env.apiUrl`, Cucumber preprocessor + esbuild. |
+| **Fixtures** (`cypress/fixtures/`) | Non-secret shared data (e.g. `user.json` display names); **passwords are not stored here**. |
+| **Config** | `cypress.config.js`: frontend `baseUrl`, `env` (incl. `apiUrl`, `testPassword` from env vars), Cucumber + esbuild. |
 
 ### Folder layout (main)
 
@@ -27,6 +27,7 @@ cypress_challenge/
 │   └── workflows/
 │       └── cypress.yml         # GitHub Actions CI
 ├── cypress.config.js
+├── cypress.env.example.json   # Copy to cypress.env.json (gitignored) for local secrets
 ├── package.json
 ├── README.md
 ├── cypress/
@@ -60,6 +61,23 @@ Request **JSON keys** to ServeRest remain as documented (`nome`, `administrador`
 - npm (bundled with Node)
 - Network access (tests hit public environments)
 
+## Security and secrets
+
+- **`cypress/fixtures/user.json` does not contain passwords.** Test passwords are supplied via Cypress environment variables so they are not committed with fixtures.
+- **`cypress.env.json` is gitignored.** For local runs with an explicit password (or a non-default API URL), copy the template and adjust:
+
+  ```bash
+  cp cypress.env.example.json cypress.env.json
+  ```
+
+  Edit `cypress.env.json` and set `testPassword` (and optionally `apiUrl`). Cypress loads this file automatically.
+
+- **Shell alternative:** `export CYPRESS_testPassword='your-password'` (and optionally `CYPRESS_apiUrl`) before `npm test`.
+
+- **CI:** GitHub Actions expects a repository secret **`CYPRESS_TEST_PASSWORD`**. Add it under **Settings → Secrets and variables → Actions → New repository secret**. For the public ServeRest sandbox, a dedicated non-production password (e.g. the same value you use locally for demos) is enough — treat it like any test credential, not a production secret.
+
+- **Local without `cypress.env.json`:** when not running in CI, a documented sandbox fallback is used so `npm test` still works against ServeRest (see [`cypress/support/envPassword.js`](cypress/support/envPassword.js)). CI **does not** use that fallback and requires the secret above.
+
 ## How to run
 
 ### 1. Install dependencies
@@ -74,7 +92,14 @@ npm install
 npx cypress install
 ```
 
-### 3. Run tests
+### 3. (Optional) Local environment file
+
+```bash
+cp cypress.env.example.json cypress.env.json
+# Edit cypress.env.json — set testPassword at minimum
+```
+
+### 4. Run tests
 
 | Command | Description |
 |---------|-------------|
@@ -83,7 +108,7 @@ npx cypress install
 | `npm run test:api` | Only `cypress/api/**/*.feature`. |
 | `npm run cypress:open` | Opens the **Cypress** interactive runner. |
 
-Direct equivalents:
+Direct equivalents (same env rules as above):
 
 ```bash
 npx cypress run
@@ -100,6 +125,7 @@ The workflow [`.github/workflows/cypress.yml`](.github/workflows/cypress.yml) ru
 | **API** | `npm run test:api` | Runs in parallel with E2E |
 
 - Uses `npm ci` (commit [`package-lock.json`](package-lock.json) to the repo).
+- **Secret:** set **`CYPRESS_TEST_PASSWORD`** in the repository (Actions secrets). Both jobs pass it as `CYPRESS_testPassword` to Cypress. Without it, tests fail in CI by design (see **Security and secrets**).
 - **Concurrency:** new runs on the same branch cancel the previous one.
 - On failure, **screenshots** under `cypress/screenshots` are uploaded as workflow artifacts when present.
 

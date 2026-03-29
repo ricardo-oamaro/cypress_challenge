@@ -3,6 +3,7 @@ const { LoginPage } = require('../pages/LoginPage');
 const { UserRegistrationPage } = require('../pages/UserRegistrationPage');
 const { ClientHomePage } = require('../pages/ClientHomePage');
 const { AdminHomePage } = require('../pages/AdminHomePage');
+const { getTestPassword } = require('../envPassword');
 
 const apiUrl = () => Cypress.env('apiUrl');
 
@@ -29,7 +30,7 @@ When('I fill the form with name, unique email, and valid password', () => {
     const page = new UserRegistrationPage();
     page.fillName(userFixture.names.signUpUi);
     page.fillEmail(email);
-    page.fillPassword(userFixture.password);
+    page.fillPassword(getTestPassword());
     page.submit();
   });
 });
