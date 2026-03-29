@@ -1,0 +1,23 @@
+{
+  "name": "cypress-challenge-serverest",
+  "version": "1.0.0",
+  "description": "ServeRest E2E and API tests with Cypress, Cucumber (BDD), and Page Objects",
+  "private": true,
+  "scripts": {
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "test:e2e": "cypress run --spec 'cypress/e2e/**/*.feature'",
+    "test:api": "cypress run --spec 'cypress/api/**/*.feature'",
+    "test": "cypress run"
+  },
+  "devDependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "^21.0.0",
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.5",
+    "cypress": "^13.17.0"
+  },
+  "cypress-cucumber-preprocessor": {
+    "stepDefinitions": [
+      "cypress/support/step_definitions/**/*.js"
+    ]
+  }
+}

@@ -1,0 +1,113 @@
+# ServeRest — Cypress and Cucumber
+
+End-to-end (**frontend**) and **API** automation against the public **ServeRest** environment, using **Cypress**, **JavaScript**, **BDD (Gherkin)**, and **Page Objects**.
+
+## Project goal
+
+- Exercise real flows on [https://front.serverest.dev/](https://front.serverest.dev/) (login, registration, home, search, admin area).
+- Validate the REST API at [https://serverest.dev/](https://serverest.dev/) (registration, login, products, users, expected error responses).
+- Keep scenarios readable (English **`.feature`** files) and code structured (**step definitions**, **pages**, **fixtures**, **custom commands**).
+
+## Architecture
+
+| Layer | Role |
+|-------|------|
+| **Gherkin** (`*.feature`) | BDD scenarios in English; split between `cypress/e2e/` (UI) and `cypress/api/` (HTTP). |
+| **Step definitions** | Implement steps; call Page Objects, `cy.request`, or custom commands. |
+| **Page Objects** (`cypress/support/pages/`) | Encapsulate selectors and UI actions (`LoginPage`, `UserRegistrationPage`, `ClientHomePage`, `AdminHomePage`). |
+| **Commands** (`cypress/support/commands.js`) | Reuse: `cy.registerUserApi()`, `cy.loginApi()`. |
+| **Fixtures** (`cypress/fixtures/`) | Shared data (e.g. `user.json`); unique emails are generated in tests when needed. |
+| **Config** | `cypress.config.js`: frontend `baseUrl`, `env.apiUrl`, Cucumber preprocessor + esbuild. |
+
+### Folder layout (main)
+
+```
+cypress_challenge/
+├── .github/
+│   └── workflows/
+│       └── cypress.yml         # GitHub Actions CI
+├── cypress.config.js
+├── package.json
+├── README.md
+├── cypress/
+│   ├── e2e/                    # E2E features
+│   ├── api/                    # API features
+│   ├── fixtures/               # Data (e.g. user.json)
+│   └── support/
+│       ├── e2e.js
+│       ├── commands.js
+│       ├── pages/              # Page Objects
+│       └── step_definitions/   # Cucumber steps (frontend + API)
+```
+
+### Target URLs (see `cypress.config.js`)
+
+- **Frontend:** `https://front.serverest.dev` (`baseUrl`)
+- **API:** `https://serverest.dev` (`env.apiUrl`)
+
+## External strings (Portuguese)
+
+The project code, identifiers, and documentation are in **English**. A few **string literals stay in Portuguese** on purpose: they must match what **ServeRest** actually returns or displays (API messages and UI copy). Examples:
+
+- API response `message` values (e.g. registration and login outcomes, duplicate email, invalid credentials).
+- Visible UI text asserted with `cy.contains` (e.g. sign-up link label, product section title, success banner, admin welcome).
+
+Request **JSON keys** to ServeRest remain as documented (`nome`, `administrador`, etc.).
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) (LTS recommended)
+- npm (bundled with Node)
+- Network access (tests hit public environments)
+
+## How to run
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Install the Cypress binary (first run or after clearing cache)
+
+```bash
+npx cypress install
+```
+
+### 3. Run tests
+
+| Command | Description |
+|---------|-------------|
+| `npm test` | Runs **all** `.feature` files (E2E + API), headless. |
+| `npm run test:e2e` | Only `cypress/e2e/**/*.feature`. |
+| `npm run test:api` | Only `cypress/api/**/*.feature`. |
+| `npm run cypress:open` | Opens the **Cypress** interactive runner. |
+
+Direct equivalents:
+
+```bash
+npx cypress run
+npx cypress open
+```
+
+## CI (GitHub Actions)
+
+The workflow [`.github/workflows/cypress.yml`](.github/workflows/cypress.yml) runs on **push** and **pull_request** to `main` or `master`, and can be started manually (**Actions → Cypress → Run workflow**).
+
+| Job | Command | Notes |
+|-----|---------|--------|
+| **E2E (frontend)** | `npm run test:e2e` | Ubuntu, Node 20, Chrome |
+| **API** | `npm run test:api` | Runs in parallel with E2E |
+
+- Uses `npm ci` (commit [`package-lock.json`](package-lock.json) to the repo).
+- **Concurrency:** new runs on the same branch cancel the previous one.
+- On failure, **screenshots** under `cypress/screenshots` are uploaded as workflow artifacts when present.
+
+## Notes
+
+- Runs depend on **ServeRest** frontend and API availability; transient outages or rate limits can cause flaky failures.
+- Video recording is disabled in `cypress.config.js` (`video: false`); failed runs may still produce screenshots per Cypress defaults.
+
+## License
+
+Educational / portfolio use. ServeRest is a third-party project; see [serverest.dev](https://serverest.dev/) for official documentation.
